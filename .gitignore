@@ -1,0 +1,46 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.next/
+build/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+bot_run.log
+bot_run_err.log
+backend_stdout.log
+backend_stderr.log
+bot_stdout.log
+bot_stderr.log
+bot_output.log
+bot_error.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-data/
+
+# Supabase
+.supabase/
+
+# Temporary
+_verify_facts*.py
+_query_db.py

@@ -1,0 +1,7 @@
+sku,name_uz,name_ru,description_uz,description_ru,category_name,brand_name,unit,min_quantity,max_quantity,stock_status,cost_price,additional_costs,margin_percentage,currency,tier1_min,tier1_max,tier1_price,tier2_min,tier2_max,tier2_price,tier3_min,tier3_price
+CLEAN-001,Kir yuvish kukuni,Стиральный порошок,Professional kir yuvish kukuni 5kg,Профессиональный стиральный порошок 5kg,Kimyoviy mahsulotlar,Tide,kg,1,100,in_stock,45000,5000,25,UZS,1,10,62500,11,50,56250,51,53125
+CLEAN-002,Derzalovchi,Чистящее средство,Dezinfeksiya qiluvchi eritma,Дезинфицирующий раствор,Kimyoviy mahsulotlar,Cif,liter,1,50,in_stock,35000,3000,30,UZS,1,5,49400,6,25,45500,26,42000
+PAPER-001,Salfetka,Салфетки,Mulliefton salfetka 100 dona,Мягкие салфетки 100 штук,Qogoz mahsulotlar,Kleenex,box,1,200,in_stock,15000,1000,20,UZS,1,20,19200,21,100,18000,101,17100
+PAPER-002, WC qogoz,Бумага туалетная,3 qavatli WC qogoz 12 rulon,3-ярусная туалетная бумага 12 рулонов,Qogoz mahsulotlar,Folder,box,1,50,in_stock,42000,3000,22,UZS,1,10,54780,11,30,51000,31,48000
+TEXT-001,Poshmatso,Полотенце,Bir martalik peshmatso 30x50,Одноразовое полотенце 30x50,Tekstil,Uniflex,set,1,100,in_stock,25000,2000,28,UZS,1,10,34560,11,50,32000,51,30000
+CHEM-003,Yuvish suyuqligi,Моющее средство,Professional yuvish suyuqligi 5L,Профессиональное моющее средство 5L,Kimyoviy mahsulotlar,Fairy,liter,1,30,in_stock,55000,5000,25,UZS,1,5,75000,6,20,68750,21,64000

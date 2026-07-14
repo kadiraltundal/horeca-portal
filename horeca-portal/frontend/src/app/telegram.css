@@ -1,0 +1,223 @@
+/* Telegram Mini App Styles */
+
+:root {
+  --tg-bg-color: #ffffff;
+  --tg-text-color: #000000;
+  --tg-hint-color: #999999;
+  --tg-link-color: #2481cc;
+  --tg-button-color: #2481cc;
+  --tg-button-text-color: #ffffff;
+  --tg-secondary-bg-color: #f1f1f1;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Telegram WebApp Base */
+html, body {
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body {
+  background-color: var(--tg-bg-color);
+  color: var(--tg-text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Safe Area Padding for iPhone */
+.safe-area-top {
+  padding-top: var(--safe-area-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--safe-area-bottom);
+}
+
+/* Telegram Button Style */
+.tg-button {
+  background-color: var(--tg-button-color);
+  color: var(--tg-button-text-color);
+  border: none;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.tg-button:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.tg-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Telegram Card Style */
+.tg-card {
+  background-color: var(--tg-secondary-bg-color);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* Telegram Input Style */
+.tg-input {
+  background-color: var(--tg-bg-color);
+  color: var(--tg-text-color);
+  border: 1px solid var(--tg-hint-color);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tg-input:focus {
+  outline: none;
+  border-color: var(--tg-button-color);
+}
+
+.tg-input::placeholder {
+  color: var(--tg-hint-color);
+}
+
+/* Telegram List Item */
+.tg-list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: var(--tg-secondary-bg-color);
+  border-bottom: 1px solid var(--tg-bg-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tg-list-item:active {
+  background-color: var(--tg-bg-color);
+}
+
+.tg-list-item:last-child {
+  border-bottom: none;
+}
+
+/* Telegram Header */
+.tg-header {
+  background-color: var(--tg-secondary-bg-color);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--tg-bg-color);
+}
+
+/* Telegram Bottom Bar */
+.tg-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--tg-secondary-bg-color);
+  border-top: 1px solid var(--tg-bg-color);
+  padding-bottom: var(--safe-area-bottom);
+  z-index: 100;
+}
+
+/* Telegram Theme Utilities */
+.tg-text-primary { color: var(--tg-text-color); }
+.tg-text-secondary { color: var(--tg-hint-color); }
+.tg-text-link { color: var(--tg-link-color); }
+.tg-bg-primary { background-color: var(--tg-bg-color); }
+.tg-bg-secondary { background-color: var(--tg-secondary-bg-color); }
+.tg-bg-button { background-color: var(--tg-button-color); }
+
+/* Animations */
+@keyframes tg-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.tg-loading {
+  animation: tg-pulse 1.5s ease-in-out infinite;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--tg-hint-color);
+  border-radius: 2px;
+}
+
+/* Touch Feedback */
+.touch-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-feedback::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.touch-feedback:active::after {
+  width: 200%;
+  height: 200%;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tg-bg-color: #1a1a1a;
+    --tg-text-color: #ffffff;
+    --tg-hint-color: #8e8e93;
+    --tg-secondary-bg-color: #2c2c2e;
+  }
+}
+
+/* Telegram Mini App Specific */
+.telegram-mini-app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.telegram-mini-app main {
+  flex: 1;
+  padding-bottom: 80px; /* Space for bottom nav */
+}
+
+/* Haptic Feedback Animation */
+@keyframes haptic {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.haptic-feedback {
+  animation: haptic 0.1s ease-in-out;
+}

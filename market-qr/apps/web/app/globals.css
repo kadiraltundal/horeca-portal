@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: #111827;
+  background-color: #f3f4f6;
+}
+
+input, textarea, select {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* POS-specific styles */
+@layer components {
+  .pos-table-row {
+    @apply border-b border-gray-100 transition-colors;
+  }
+  .pos-table-row:hover {
+    @apply bg-blue-50;
+  }
+  .pos-table-row:nth-child(even) {
+    @apply bg-gray-50/50;
+  }
+  .pos-table-row:nth-child(even):hover {
+    @apply bg-blue-50;
+  }
+
+  .pos-btn {
+    @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all active:scale-95 select-none;
+  }
+  .pos-btn-green {
+    @apply pos-btn bg-green-600 text-white hover:bg-green-700;
+  }
+  .pos-btn-blue {
+    @apply pos-btn bg-blue-600 text-white hover:bg-blue-700;
+  }
+  .pos-btn-yellow {
+    @apply pos-btn bg-yellow-500 text-white hover:bg-yellow-600;
+  }
+  .pos-btn-orange {
+    @apply pos-btn bg-orange-500 text-white hover:bg-orange-600;
+  }
+  .pos-btn-gray {
+    @apply pos-btn bg-gray-500 text-white hover:bg-gray-600;
+  }
+  .pos-btn-red {
+    @apply pos-btn bg-red-600 text-white hover:bg-red-700;
+  }
+
+  .pos-kbd {
+    @apply inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-white/20 rounded;
+  }
+
+  .pos-grid-card {
+    @apply bg-white rounded-xl border border-gray-100 p-2.5 cursor-pointer transition-all duration-200
+           hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-0.5
+           active:scale-[0.97] active:shadow-sm;
+  }
+  .pos-grid-card .card-image {
+    @apply w-full aspect-square rounded-lg mb-2 flex items-center justify-center overflow-hidden
+           bg-gradient-to-br from-gray-50 to-gray-100 transition-all duration-200;
+  }
+  .pos-grid-card:hover .card-image {
+    @apply from-primary-50 to-primary-100/50;
+  }
+  .pos-grid-card .card-name {
+    @apply text-[11px] font-semibold text-gray-700 leading-tight line-clamp-2 min-h-[28px];
+  }
+  .pos-grid-card .card-price {
+    @apply text-sm font-extrabold text-primary-600 mt-1;
+  }
+  .pos-grid-card .card-action {
+    @apply mt-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-1 group-hover:translate-y-0;
+  }
+  .pos-grid-card .card-action span {
+    @apply inline-flex items-center gap-1 text-[10px] font-bold text-white bg-green-500
+           px-2 py-0.5 rounded-full shadow-sm;
+  }
+
+  /* Cart item animation */
+  .cart-item-enter {
+    animation: cartSlideIn 0.2s ease-out;
+  }
+  @keyframes cartSlideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

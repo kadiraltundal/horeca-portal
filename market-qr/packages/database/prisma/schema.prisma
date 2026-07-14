@@ -1,0 +1,1338 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== Currency =====
+
+model Currency {
+  id          String   @id @default(uuid())
+  code        String   @unique  // ISO 4217 kodu: USD, EUR, TRY, UZS, RUB
+  name        String             // Türk Lirası, ABD Doları
+  symbol      String?            // ₺, $, €
+  decimalPlaces Int    @default(2)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ===== Organization =====
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  taxNumber   String?  @unique
+  address     String?
+  phone       String?
+  email       String?
+  logoUrl     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  regions    Region[]
+  users      User[]
+  warehouses Warehouse[]
+}
+
+model Region {
+  id        String   @id @default(uuid())
+  companyId String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id])
+  stores  Store[]
+}
+
+model Warehouse {
+  id        String   @id @default(uuid())
+  companyId String
+  name      String
+  address   String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  batches         Batch[]
+  warehouseStocks WarehouseStock[]
+  purchaseOrders  PurchaseOrder[]
+  zones           WarehouseZone[]
+  tasks           WarehouseTask[]
+  outgoingTransfers WarehouseTransfer[] @relation("FromWarehouse")
+  incomingTransfers WarehouseTransfer[] @relation("ToWarehouse")
+}
+
+// ===== Core =====
+
+model Store {
+  id           String   @id @default(uuid())
+  regionId     String?
+  name         String
+  address      String
+  latitude     Float?
+  longitude    Float?
+  phone        String?
+  isActive     Boolean  @default(true)
+  workingHours String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  region         Region?         @relation(fields: [regionId], references: [id])
+  users          User[]
+  storeProducts  StoreProduct[]
+  productQRs     ProductQR[]
+  orders         Order[]
+  shelves        Shelf[]
+  storeStocks    StoreStock[]
+  scanLogs       ScanLog[]
+  stockMovements StockMovement[]
+  purchaseOrders PurchaseOrder[]
+  cashDrawers    CashDrawer[]
+  zReports       ZReport[]
+  invoices       Invoice[]
+  expenses       Expense[]
+  shifts         Shift[]
+  attendances    Attendance[]
+  performanceMetrics PerformanceMetric[]
+  returnRequests     ReturnRequest[]
+  deliveryZones      DeliveryZone[]
+  deliveryOrders     DeliveryOrder[]
+  supportTickets     SupportTicket[]
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  parentId  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+}
+
+model Brand {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+}
+
+model Supplier {
+  id          String   @id @default(uuid())
+  name        String
+  contactName String?
+  phone       String?
+  email       String?
+  address     String?
+  taxNumber   String?
+  bankName    String?
+  bankAccount String?
+  rating      Float?   @default(0)
+  notes       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products        Product[]
+  batches         Batch[]
+  purchaseOrders  PurchaseOrder[]
+  invoices        SupplierInvoice[]
+  portalUsers     SupplierPortalUser[]
+}
+
+model Unit {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  symbol    String?  @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  name        String
+  description String?
+  price       Float
+  currency    String   @default("TRY")
+  vatRate     Float    @default(20)
+  barcode     String?
+  weight      Float?
+  volume      Float?
+  country     String?
+  origin      String?
+  status      String   @default("ACTIVE")
+  isActive    Boolean  @default(true)
+  categoryId  String
+  brandId     String?
+  supplierId  String?
+  unitId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category        Category              @relation(fields: [categoryId], references: [id])
+  brand           Brand?                @relation(fields: [brandId], references: [id])
+  supplier        Supplier?             @relation(fields: [supplierId], references: [id])
+  unit            Unit?                 @relation(fields: [unitId], references: [id])
+  storeProducts   StoreProduct[]
+  productQRs      ProductQR[]
+  orderItems      OrderItem[]
+  images          ProductImage[]
+  variants        ProductVariant[]
+  tags            ProductTag[]
+  batches         Batch[]
+  prices          ProductPrice[]
+  scanLogs        ScanLog[]
+  favorites       UserFavorite[]
+  stockMovements  StockMovement[]
+  purchaseItems   PurchaseOrderItem[]
+  warehouseStocks WarehouseStock[]
+  invoiceItems    InvoiceItem[]
+  warehouseTransfers WarehouseTransfer[]
+  ecommerceProducts  EcommerceProduct[]
+  returnItems        ReturnItem[]
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  productId String
+  name      String
+  sku       String   @unique
+  barcode   String?
+  price     Float
+  stock     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product    Product          @relation(fields: [productId], references: [id])
+  attributes ProductAttribute[]
+}
+
+model ProductAttribute {
+  id             String @id @default(uuid())
+  productVariantId String
+  name           String
+  value          String
+
+  variant ProductVariant @relation(fields: [productVariantId], references: [id])
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  color     String?
+  createdAt DateTime @default(now())
+
+  products ProductTag[]
+}
+
+model ProductTag {
+  productId String
+  tagId     String
+
+  product Product @relation(fields: [productId], references: [id])
+  tag     Tag     @relation(fields: [tagId], references: [id])
+
+  @@id([productId, tagId])
+}
+
+model StoreProduct {
+  id                 String   @id @default(uuid())
+  storeId            String
+  productId          String
+  stockQuantity      Int      @default(0)
+  shelfNumber        String?
+  minStockThreshold  Int      @default(10)
+  maxStockLevel      Int?
+  lastUpdated        DateTime @updatedAt
+
+  store   Store   @relation(fields: [storeId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([storeId, productId])
+}
+
+// ===== Batch =====
+
+model Batch {
+  id               String   @id @default(uuid())
+  batchNumber      String   @unique
+  productId        String
+  supplierId       String?
+  warehouseId      String?
+  manufactureDate  DateTime?
+  expiryDate       DateTime?
+  importDate       DateTime @default(now())
+  quantity         Int      @default(0)
+  remainingQty     Int      @default(0)
+  status           String   @default("ACTIVE")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  product    Product         @relation(fields: [productId], references: [id])
+  supplier   Supplier?       @relation(fields: [supplierId], references: [id])
+  warehouse  Warehouse?      @relation(fields: [warehouseId], references: [id])
+  storeStocks StoreStock[]
+}
+
+// ===== Stock =====
+
+model StoreStock {
+  id        String   @id @default(uuid())
+  storeId   String
+  batchId   String
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id])
+  batch Batch @relation(fields: [batchId], references: [id])
+
+  @@unique([storeId, batchId])
+}
+
+model WarehouseStock {
+  id          String   @id @default(uuid())
+  warehouseId String
+  productId   String
+  quantity    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@unique([warehouseId, productId])
+}
+
+// ===== QR =====
+
+model ProductQR {
+  id          String   @id @default(uuid())
+  storeId     String
+  productId   String
+  qrToken     String   @unique
+  qrImageUrl  String?
+  version     Int      @default(1)
+  isActive    Boolean  @default(true)
+  redirectedTo String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  store   Store   @relation(fields: [storeId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  scanLogs ScanLog[]
+  qrHistory QRHistory[]
+}
+
+model QRHistory {
+  id        String   @id @default(uuid())
+  qrId      String
+  action    String
+  oldValues String?
+  newValues String?
+  createdAt DateTime @default(now())
+
+  qr ProductQR @relation(fields: [qrId], references: [id])
+}
+
+// ===== User & Auth =====
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  password       String
+  firstName      String
+  lastName       String
+  phone          String?
+  cashierNumber  String?   @unique
+  role           String    @default("CUSTOMER")
+  companyId      String?
+  storeId        String?
+  avatarUrl      String?
+  isMfaEnabled   Boolean   @default(false)
+  mfaSecret      String?
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  company       Company?       @relation(fields: [companyId], references: [id])
+  store         Store?         @relation(fields: [storeId], references: [id])
+  orders        Order[]
+  notifications Notification[]
+  sessions      UserSession[]
+  scanLogs      ScanLog[]
+  auditLogs     AuditLog[]
+  customer            Customer?
+  favorites           UserFavorite[]
+  cashDrawers         CashDrawer[]
+  zReports            ZReport[]
+  loyaltyTransactions LoyaltyTransaction[]
+  customerInvoices    Invoice[]          @relation("CustomerInvoices")
+  shifts              Shift[]
+  attendances         Attendance[]
+  performanceMetrics  PerformanceMetric[]
+  returnRequests      ReturnRequest[]
+  supportTickets      SupportTicket[]
+  ticketMessages      TicketMessage[]
+  ticketRatings       TicketRating[]
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  refreshToken String?  @unique
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ===== Customer =====
+
+model Customer {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  tier      String   @default("BRONZE")
+  points    Int      @default(0)
+  birthDate DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User        @relation(fields: [userId], references: [id])
+  addresses Address[]
+  devices   CustomerDevice[]
+}
+
+model Address {
+  id         String  @id @default(uuid())
+  customerId String
+  title      String
+  address    String
+  city       String?
+  district   String?
+  zipCode    String?
+  isDefault  Boolean @default(false)
+
+  customer Customer @relation(fields: [customerId], references: [id])
+}
+
+model CustomerDevice {
+  id         String   @id @default(uuid())
+  customerId String
+  deviceType String
+  token      String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id])
+}
+
+// ===== Order & Payment =====
+
+model Order {
+  id             String   @id @default(uuid())
+  userId         String
+  storeId        String
+  totalAmount    Float
+  discountAmount Float    @default(0)
+  status         String   @default("PENDING")
+  paymentMethod  String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id])
+  store       Store       @relation(fields: [storeId], references: [id])
+  orderItems  OrderItem[]
+  payment     Payment?
+  refunds     Refund[]
+  ecommerceOrders EcommerceOrder[]
+  returnRequests  ReturnRequest[]
+  deliveryOrders  DeliveryOrder[]
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Float
+  subtotal  Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  orderId     String   @unique
+  amount      Float
+  method      String
+  provider    String
+  externalRef String?
+  status      String   @default("PENDING")
+  webhookLog  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+// ===== Pricing =====
+
+model ProductPrice {
+  id             String    @id @default(uuid())
+  productId      String
+  priceType      String
+  price          Float
+  currency       String    @default("TRY")
+  regionId       String?
+  customerTier   String?
+  startTime      DateTime?
+  endTime        DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, priceType, regionId, customerTier])
+}
+
+// ===== Promotion =====
+
+model Promotion {
+  id              String    @id @default(uuid())
+  title           String
+  description     String?
+  discountType    String
+  discountValue   Float
+  startDate       DateTime
+  endDate         DateTime
+  targetCategoryId String?
+  isActive        Boolean   @default(true)
+  usageLimit      Int?
+  usedCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  coupons Coupon[]
+}
+
+model Coupon {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  promotionId String
+  usageLimit  Int      @default(1)
+  usedCount   Int      @default(0)
+  minAmount   Float?
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  promotion Promotion @relation(fields: [promotionId], references: [id])
+}
+
+// ===== Loyalty =====
+
+model LoyaltyTransaction {
+  id        String   @id @default(uuid())
+  userId    String
+  points    Int
+  type      String
+  reference String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model LoyaltyReward {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  pointsCost  Int
+  rewardType  String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+// ===== Media =====
+
+model Media {
+  id        String   @id @default(uuid())
+  filename  String
+  url       String
+  mimeType  String
+  size      Int
+  type      String
+  productId String?
+  createdAt DateTime @default(now())
+}
+
+// ===== CMS =====
+
+model CmsBanner {
+  id        String   @id @default(uuid())
+  title     String
+  imageUrl  String
+  linkUrl   String?
+  position  String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsPage {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  title     String
+  content   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsBlog {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  content   String
+  imageUrl  String?
+  author    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsFaq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  category  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model CmsAnnouncement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  type      String   @default("INFO")
+  isActive  Boolean  @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ===== Scan & Analytics =====
+
+model ScanLog {
+  id         String   @id @default(uuid())
+  qrId       String
+  productId  String
+  storeId    String?
+  userId     String?
+  deviceType String?
+  os         String?
+  browser    String?
+  ipAddress  String?
+  country    String?
+  city       String?
+  language   String?
+  referrer   String?
+  scanTime   DateTime @default(now())
+
+  qr      ProductQR? @relation(fields: [qrId], references: [id])
+  product Product    @relation(fields: [productId], references: [id])
+  store   Store?     @relation(fields: [storeId], references: [id])
+  user    User?      @relation(fields: [userId], references: [id])
+}
+
+// ===== Audit Log =====
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  oldValues String?
+  newValues String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ===== Notification =====
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  content   String
+  isRead    Boolean  @default(false)
+  channel   String   @default("PUSH")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ===== Shelf =====
+
+model Shelf {
+  id          String  @id @default(uuid())
+  storeId     String
+  shelfNumber String
+  floor       Int     @default(1)
+  locationDesc String?
+
+  store Store @relation(fields: [storeId], references: [id])
+}
+
+// ===== Favorites =====
+
+model UserFavorite {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+// ===== Stock Movement =====
+
+model StockMovement {
+  id            String   @id @default(uuid())
+  storeId       String
+  productId     String
+  type          String   // IN, OUT, TRANSFER, ADJUSTMENT, RETURN
+  quantity      Int
+  referenceType String?  // ORDER, PURCHASE, TRANSFER, MANUAL
+  referenceId   String?
+  notes         String?
+  userId        String?
+  createdAt     DateTime @default(now())
+
+  store   Store   @relation(fields: [storeId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// ===== Purchase Order =====
+
+model PurchaseOrder {
+  id            String   @id @default(uuid())
+  orderNumber   String   @unique
+  supplierId    String
+  storeId       String?
+  warehouseId   String?
+  status        String   @default("DRAFT") // DRAFT, PENDING, APPROVED, RECEIVED, CANCELLED
+  totalAmount   Float    @default(0)
+  notes         String?
+  expectedDate  DateTime?
+  receivedDate  DateTime?
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  supplier    Supplier          @relation(fields: [supplierId], references: [id])
+  store       Store?            @relation(fields: [storeId], references: [id])
+  warehouse   Warehouse?        @relation(fields: [warehouseId], references: [id])
+  items       PurchaseOrderItem[]
+  invoices    SupplierInvoice[]
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  productId       String
+  quantity        Int
+  unitPrice       Float
+  subtotal        Float
+  receivedQty     Int           @default(0)
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+}
+
+// ===== Supplier Invoice =====
+
+model SupplierInvoice {
+  id              String   @id @default(uuid())
+  invoiceNumber   String   @unique
+  purchaseOrderId String?
+  supplierId      String
+  totalAmount     Float
+  dueDate         DateTime?
+  status          String   @default("PENDING") // PENDING, PAID, OVERDUE, CANCELLED
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  purchaseOrder PurchaseOrder?  @relation(fields: [purchaseOrderId], references: [id])
+  supplier      Supplier        @relation(fields: [supplierId], references: [id])
+  payments      SupplierPayment[]
+}
+
+// ===== Supplier Payment =====
+
+model SupplierPayment {
+  id              String   @id @default(uuid())
+  invoiceId       String
+  amount          Float
+  paymentDate     DateTime @default(now())
+  paymentMethod   String   // CASH, BANK_TRANSFER, CHECK, CREDIT_CARD
+  referenceNumber String?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  invoice SupplierInvoice @relation(fields: [invoiceId], references: [id])
+}
+
+// ===== Refund =====
+
+model Refund {
+  id            String   @id @default(uuid())
+  orderId       String
+  amount        Float
+  reason        String?
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED, COMPLETED
+  processedBy   String?
+  processedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+// ===== Cash Drawer =====
+
+model CashDrawer {
+  id              String   @id @default(uuid())
+  storeId         String
+  userId          String
+  openingBalance  Float
+  closingBalance  Float?
+  notes           String?
+  status          String   @default("OPEN") // OPEN, CLOSED
+  openedAt        DateTime @default(now())
+  closedAt        DateTime?
+
+  store Store @relation(fields: [storeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+// ===== Z Report =====
+
+model ZReport {
+  id              String   @id @default(uuid())
+  storeId         String
+  userId          String
+  reportDate      DateTime @default(now())
+  totalSales      Float    @default(0)
+  totalRefunds    Float    @default(0)
+  cashSales       Float    @default(0)
+  cardSales       Float    @default(0)
+  otherSales      Float    @default(0)
+  transactionCount Int     @default(0)
+  createdAt       DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+// ===== Finance =====
+
+model Invoice {
+  id              String   @id @default(uuid())
+  invoiceNumber   String   @unique
+  storeId         String
+  customerId      String?
+  type            String   @default("SALES") // SALES, PURCHASE, RETURN
+  status          String   @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
+  subtotal        Float    @default(0)
+  taxAmount       Float    @default(0)
+  discountAmount  Float    @default(0)
+  totalAmount     Float    @default(0)
+  dueDate         DateTime?
+  paidAt          DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  store        Store         @relation(fields: [storeId], references: [id])
+  customer     User?         @relation("CustomerInvoices", fields: [customerId], references: [id])
+  invoiceItems InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String @id @default(uuid())
+  invoiceId   String
+  productId   String?
+  description String
+  quantity    Float  @default(1)
+  unitPrice   Float
+  taxRate     Float  @default(20)
+  subtotal    Float
+  total       Float
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  product Product? @relation(fields: [productId], references: [id])
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  storeId     String
+  categoryId  String?
+  title       String
+  description String?
+  amount      Float
+  currency    String   @default("TRY")
+  date        DateTime @default(now())
+  receiptUrl  String?
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id])
+}
+
+// ===== Warehouse Management =====
+
+model WarehouseZone {
+  id          String   @id @default(uuid())
+  warehouseId String
+  name        String
+  code        String
+  floor       Int      @default(1)
+  description String?
+  capacity    Int?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  tasks     WarehouseTask[]
+}
+
+model WarehouseTask {
+  id          String   @id @default(uuid())
+  warehouseId String
+  zoneId      String?
+  type        String   @default("COUNT") // COUNT, MOVE, REPLENISH, AUDIT
+  title       String
+  description String?
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  assignedTo  String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  warehouse Warehouse    @relation(fields: [warehouseId], references: [id])
+  zone      WarehouseZone? @relation(fields: [zoneId], references: [id])
+}
+
+model WarehouseTransfer {
+  id                String   @id @default(uuid())
+  transferNumber    String   @unique
+  fromWarehouseId   String
+  toWarehouseId     String
+  productId         String
+  quantity          Float
+  status            String   @default("PENDING") // PENDING, IN_TRANSIT, RECEIVED, CANCELLED
+  notes             String?
+  requestedBy       String
+  receivedBy        String?
+  requestedAt       DateTime @default(now())
+  receivedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  fromWarehouse Warehouse @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
+  toWarehouse   Warehouse @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
+  product       Product   @relation(fields: [productId], references: [id])
+}
+
+// ===== Staff Management =====
+
+model Shift {
+  id          String    @id @default(uuid())
+  storeId     String
+  userId      String
+  startTime   DateTime
+  endTime     DateTime
+  status      String    @default("SCHEDULED") // SCHEDULED, ACTIVE, COMPLETED, CANCELLED
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+model Attendance {
+  id        String    @id @default(uuid())
+  userId    String
+  storeId   String
+  date      DateTime  @default(now())
+  checkIn   DateTime
+  checkOut  DateTime?
+  hoursWorked Float?
+  status    String    @default("PRESENT") // PRESENT, ABSENT, LATE, HALF_DAY
+  notes     String?
+  createdAt DateTime  @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  store Store @relation(fields: [storeId], references: [id])
+}
+
+model PerformanceMetric {
+  id          String   @id @default(uuid())
+  userId      String
+  storeId     String
+  metricType  String   // SALES, ORDERS, CUSTOMER_SERVICE, EFFICIENCY
+  value       Float
+  period      String   // DAILY, WEEKLY, MONTHLY
+  startDate   DateTime
+  endDate     DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  store Store @relation(fields: [storeId], references: [id])
+}
+
+// ===== Supplier Portal =====
+
+model SupplierPortalUser {
+  id           String   @id @default(uuid())
+  supplierId   String
+  email        String   @unique
+  password     String
+  firstName    String
+  lastName     String
+  role         String   @default("VIEWER") // ADMIN, EDITOR, VIEWER
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  sentMessages     SupplierMessage[] @relation("Sender")
+  receivedMessages SupplierMessage[] @relation("Receiver")
+}
+
+model SupplierMessage {
+  id          String   @id @default(uuid())
+  senderId    String
+  receiverId  String
+  subject     String
+  content     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  sender   SupplierPortalUser @relation("Sender", fields: [senderId], references: [id])
+  receiver SupplierPortalUser @relation("Receiver", fields: [receiverId], references: [id])
+}
+
+// ===== Reports =====
+
+model ReportTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  type        String   // SALES, INVENTORY, FINANCIAL, CUSTOMER, PRODUCT
+  config      Json?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  generatedReports GeneratedReport[]
+}
+
+model GeneratedReport {
+  id           String   @id @default(uuid())
+  templateId   String?
+  type         String
+  format       String   @default("PDF") // PDF, XLSX, CSV
+  parameters   Json?
+  filePath     String?
+  status       String   @default("PENDING") // PENDING, GENERATING, COMPLETED, FAILED
+  generatedBy  String?
+  createdAt    DateTime @default(now())
+  completedAt  DateTime?
+
+  template ReportTemplate? @relation(fields: [templateId], references: [id])
+}
+
+// ===== E-Commerce =====
+
+model EcommercePlatform {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // TRENDYOL, HEPSIBURADA, N11, AMAZON, CUSTOM
+  apiKey      String?
+  apiSecret   String?
+  baseUrl     String?
+  isActive    Boolean  @default(true)
+  lastSyncAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products EcommerceProduct[]
+  orders   EcommerceOrder[]
+  syncLogs EcommerceSyncLog[]
+}
+
+model EcommerceProduct {
+  id              String   @id @default(uuid())
+  platformId      String
+  productId       String
+  platformSku     String?
+  platformPrice   Float?
+  syncStatus      String   @default("PENDING") // PENDING, SYNCED, ERROR
+  lastSyncAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  platform EcommercePlatform @relation(fields: [platformId], references: [id])
+  product  Product           @relation(fields: [productId], references: [id])
+}
+
+model EcommerceOrder {
+  id               String   @id @default(uuid())
+  platformId       String
+  platformOrderId  String
+  internalOrderId  String?
+  status           String   @default("RECEIVED") // RECEIVED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  totalAmount      Float
+  currency         String   @default("TRY")
+  customerName     String?
+  customerEmail    String?
+  shippingAddress  String?
+  items            Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  platform EcommercePlatform @relation(fields: [platformId], references: [id])
+  order    Order?            @relation(fields: [internalOrderId], references: [id])
+}
+
+model EcommerceSyncLog {
+  id          String   @id @default(uuid())
+  platformId  String
+  type        String   // PRODUCT, ORDER, INVENTORY
+  action      String   // PUSH, PULL, UPDATE
+  status      String   // SUCCESS, FAILED
+  message     String?
+  details     Json?
+  createdAt   DateTime @default(now())
+
+  platform EcommercePlatform @relation(fields: [platformId], references: [id])
+}
+
+// ===== Returns / İade Yönetimi =====
+
+model ReturnRequest {
+  id            String   @id @default(uuid())
+  orderId       String
+  userId        String
+  storeId       String
+  reason        String
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED, RECEIVED, COMPLETED
+  refundAmount  Float    @default(0)
+  refundMethod  String?  // CASH, CARD, GIFT_CARD, BANK_TRANSFER
+  notes         String?
+  images        Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  order       Order        @relation(fields: [orderId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+  store       Store        @relation(fields: [storeId], references: [id])
+  returnItems ReturnItem[]
+}
+
+model ReturnItem {
+  id              String @id @default(uuid())
+  returnRequestId String
+  productId       String
+  quantity        Int
+  unitPrice       Float
+  reason          String?
+  condition       String @default("NEW") // NEW, USED, DAMAGED
+
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+}
+
+// ===== Delivery / Teslimat =====
+
+model DeliveryZone {
+  id          String   @id @default(uuid())
+  storeId     String
+  name        String
+  description String?
+  radius      Float    @default(5) // km
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id])
+}
+
+model DeliveryOrder {
+  id              String   @id @default(uuid())
+  orderId         String
+  storeId         String
+  customerId      String?
+  address         String
+  latitude        Float?
+  longitude       Float?
+  status          String   @default("PENDING") // PENDING, ASSIGNED, PICKED_UP, IN_TRANSIT, DELIVERED, FAILED
+  assignedTo      String?
+  estimatedTime   DateTime?
+  actualTime      DateTime?
+  deliveryFee     Float    @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  order    Order              @relation(fields: [orderId], references: [id])
+  store    Store              @relation(fields: [storeId], references: [id])
+  tracking DeliveryTracking[]
+}
+
+model DeliveryTracking {
+  id              String   @id @default(uuid())
+  deliveryOrderId String
+  latitude        Float
+  longitude       Float
+  status          String
+  timestamp       DateTime @default(now())
+  notes           String?
+
+  deliveryOrder DeliveryOrder @relation(fields: [deliveryOrderId], references: [id])
+}
+
+// ===== Customer Service / Destek =====
+
+model SupportTicket {
+  id          String   @id @default(uuid())
+  userId      String
+  storeId     String?
+  subject     String
+  description String
+  category    String   @default("OTHER") // ORDER, PRODUCT, DELIVERY, PAYMENT, OTHER
+  status      String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  assignedTo  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User           @relation(fields: [userId], references: [id])
+  store    Store?         @relation(fields: [storeId], references: [id])
+  messages TicketMessage[]
+  rating   TicketRating?
+}
+
+model TicketMessage {
+  id         String   @id @default(uuid())
+  ticketId   String
+  senderId   String
+  content    String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id])
+  sender User          @relation(fields: [senderId], references: [id])
+}
+
+model TicketRating {
+  id       String   @id @default(uuid())
+  ticketId String   @unique
+  userId   String
+  rating   Int      // 1-5
+  comment  String?
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id])
+  user   User          @relation(fields: [userId], references: [id])
+}
+
+// ===== Gift Card / Hediye Kartı =====
+
+model GiftCard {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  initialValue   Float
+  currentBalance Float
+  currency       String   @default("TRY")
+  status         String   @default("ACTIVE") // ACTIVE, USED, EXPIRED, CANCELLED
+  issuedBy       String?
+  issuedTo       String?
+  expiresAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  transactions GiftCardTransaction[]
+}
+
+model GiftCardTransaction {
+  id           String   @id @default(uuid())
+  giftCardId   String
+  type         String   // ISSUE, REDEEM, BALANCE_INQUIRY
+  amount       Float
+  balanceAfter Float
+  reference    String?
+  createdAt    DateTime @default(now())
+
+  giftCard GiftCard @relation(fields: [giftCardId], references: [id])
+}
