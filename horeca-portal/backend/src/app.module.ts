@@ -64,6 +64,7 @@ import { RecommendationsModule } from './modules/recommendations/recommendations
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      ignoreEnvFile: true,
     }),
 
     // TypeORM
