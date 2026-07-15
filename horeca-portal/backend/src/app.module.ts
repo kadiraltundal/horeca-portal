@@ -77,6 +77,7 @@ import { RecommendationsModule } from './modules/recommendations/recommendations
         username: configService.get('DB_USERNAME', 'horeca_admin'),
         password: configService.get('DB_PASSWORD', 'horeca_secret_2024'),
         database: configService.get('DB_DATABASE', 'horeca_portal'),
+        ssl: configService.get('DB_HOST', 'localhost') !== 'localhost' ? { rejectUnauthorized: false } : false,
         entities: [
           User,
           SearchHistory,
