@@ -4,14 +4,13 @@ import {
   Put,
   Body,
   Param,
-  UseGuards,
 } from '@nestjs/common';
 import { SettingsService } from './settings.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RequirePermissions } from '../../common/decorators/permission.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { Permission } from '../../common/types/permission.types';
 
 @Controller('settings')
 export class SettingsController {
@@ -30,8 +29,8 @@ export class SettingsController {
   }
 
   @Put(':key')
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SETTINGS_UPDATE)
   setValue(
     @Param('key') key: string,
     @Body() body: { value: string; description?: string },

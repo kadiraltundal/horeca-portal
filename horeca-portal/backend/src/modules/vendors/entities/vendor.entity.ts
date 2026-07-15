@@ -16,7 +16,6 @@ export enum VendorStatus {
   APPROVED = 'approved',
   REJECTED = 'rejected',
   SUSPENDED = 'suspended',
-  ACTIVE = 'active',
 }
 
 export enum VendorType {
@@ -35,6 +34,9 @@ export class Vendor {
   @Column({ type: 'varchar', length: 200 })
   name: string;
 
+  @Column({ type: 'varchar', length: 200, unique: true })
+  slug: string;
+
   @Column({ type: 'text', nullable: true })
   description: string;
 
@@ -52,13 +54,47 @@ export class Vendor {
   })
   type: VendorType;
 
+  @Column({ name: 'logo_url', type: 'varchar', length: 500, nullable: true })
+  logoUrl: string;
+
+  @Column({ name: 'banner_url', type: 'varchar', length: 500, nullable: true })
+  bannerUrl: string;
+
+  @Column({ name: 'phone', type: 'varchar', length: 200, nullable: true })
+  phone: string;
+
+  @Column({ name: 'email', type: 'varchar', length: 200, nullable: true })
+  email: string;
+
+  @Column({ name: 'address', type: 'text', nullable: true })
+  address: string;
+
+  @Column({ name: 'city', type: 'varchar', length: 100, nullable: true })
+  city: string;
+
+  @Column({ name: 'country', type: 'varchar', length: 100, nullable: true })
+  country: string;
+
   @Column({
+    name: 'commission_rate',
     type: 'decimal',
     precision: 5,
     scale: 2,
     default: 0,
   })
-  commission: number;
+  commissionRate: number;
+
+  @Column({ name: 'tax_number', type: 'varchar', length: 50, nullable: true })
+  taxNumber: string;
+
+  @Column({ name: 'bank_account', type: 'text', nullable: true })
+  bankAccount: string;
+
+  @Column({ name: 'is_verified', type: 'boolean', default: false })
+  isVerified: boolean;
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive: boolean;
 
   @Column({
     type: 'decimal',
@@ -68,26 +104,11 @@ export class Vendor {
   })
   rating: number;
 
-  @Column({ name: 'phone', type: 'varchar', length: 20, nullable: true })
-  phone: string;
+  @Column({ name: 'total_sales', type: 'integer', default: 0 })
+  totalSales: number;
 
-  @Column({ name: 'email', type: 'varchar', length: 200, nullable: true })
-  email: string;
-
-  @Column({ name: 'address', type: 'text', nullable: true })
-  address: string;
-
-  @Column({ name: 'logo_url', type: 'varchar', length: 500, nullable: true })
-  logoUrl: string;
-
-  @Column({ name: 'approved_at', type: 'timestamp', nullable: true })
-  approvedAt: Date;
-
-  @Column({ name: 'suspended_at', type: 'timestamp', nullable: true })
-  suspendedAt: Date;
-
-  @Column({ name: 'suspend_reason', type: 'text', nullable: true })
-  suspendReason: string;
+  @Column({ name: 'total_revenue', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  totalRevenue: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

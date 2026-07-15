@@ -1,0 +1,80 @@
+services:
+  # Backend API
+  - type: web
+    name: horeca-backend
+    runtime: node
+    plan: starter
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && node dist/main
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: horeca-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: horeca-db
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: horeca-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: horeca-db
+          property: password
+      - key: DB_DATABASE
+        fromDatabase:
+          name: horeca-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBAPP_URL
+        fromService:
+          name: horeca-frontend
+          property: url
+      - key: CORS_ORIGIN
+        fromService:
+          name: horeca-frontend
+          property: url
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        value: noreply@horeca.uz
+
+  # Frontend
+  - type: web
+    name: horeca-frontend
+    runtime: node
+    plan: starter
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: horeca-backend
+          property: url
+      - key: NEXT_PUBLIC_TELEGRAM_BOT_URL
+        value: https://t.me/KalsanHoreca_bot
+
+  # PostgreSQL Database
+  - type: postgres
+    name: horeca-db
+    plan: starter
+    databaseName: horeca_portal
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow access from anywhere

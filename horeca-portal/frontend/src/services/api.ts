@@ -258,6 +258,59 @@ class ApiClient {
     });
   }
 
+  // Admin Orders
+  async getAdminOrders() {
+    return this.request<any[]>('/orders/admin/all');
+  }
+
+  async updateOrderStatus(id: string, status: string) {
+    return this.request<any>(`/orders/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  // Admin Payments
+  async getAdminPayments() {
+    return this.request<any[]>('/payments/admin/all');
+  }
+
+  async updatePaymentStatus(id: string, status: string) {
+    return this.request<any>(`/payments/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  // Vendors
+  async getVendors() {
+    return this.request<any[]>('/vendors');
+  }
+
+  async getVendor(id: string) {
+    return this.request<any>(`/vendors/${id}`);
+  }
+
+  async approveVendor(id: string) {
+    return this.request<any>(`/vendors/${id}/approve`, {
+      method: 'PUT',
+    });
+  }
+
+  async rejectVendor(id: string, reason: string) {
+    return this.request<any>(`/vendors/${id}/reject`, {
+      method: 'PUT',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async suspendVendor(id: string, reason: string) {
+    return this.request<any>(`/vendors/${id}/suspend`, {
+      method: 'PUT',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
   // Generic HTTP methods for admin operations
   async get(endpoint: string) {
     return this.request<any>(endpoint);

@@ -13,7 +13,14 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/02-initial-schema.sql
+      - ./database/migrations/003_payments.sql:/docker-entrypoint-initdb.d/03-payments.sql
+      - ./database/migrations/004_orders.sql:/docker-entrypoint-initdb.d/04-orders.sql
+      - ./database/migrations/005_vendors.sql:/docker-entrypoint-initdb.d/05-vendors.sql
+      - ./database/migrations/006_performance_indexes.sql:/docker-entrypoint-initdb.d/06-indexes.sql
+      - ./database/migrations/007_permissions.sql:/docker-entrypoint-initdb.d/07-permissions.sql
+      - ./database/migrations/008_vendor_entity_fix.sql:/docker-entrypoint-initdb.d/08-vendor-fix.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U horeca_admin -d horeca_portal']
       interval: 10s
@@ -40,7 +47,7 @@ services:
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@horeca.uz
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-horeca_pgadmin_2024}
     ports:
       - '5050:80'
     volumes:

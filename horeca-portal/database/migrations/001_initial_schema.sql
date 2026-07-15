@@ -131,7 +131,7 @@ CREATE TABLE pricing (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     product_id UUID REFERENCES products(id) ON DELETE CASCADE,
     cost_price DECIMAL(12,2) NOT NULL CHECK (cost_price >= 0),
-    currency VARCHAR(3) DEFAULT 'USD' CHECK (currency IN ('USD', 'UZS')),
+    currency VARCHAR(3) DEFAULT 'UZS' CHECK (currency IN ('USD', 'UZS')),
     additional_costs DECIMAL(12,2) DEFAULT 0 CHECK (additional_costs >= 0),
     margin_percentage DECIMAL(5,2) NOT NULL CHECK (margin_percentage >= 0 AND margin_percentage <= 100),
     selling_price DECIMAL(12,2) NOT NULL CHECK (selling_price >= 0),
@@ -240,7 +240,7 @@ CREATE TABLE quotes (
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'rejected')),
     total_amount DECIMAL(12,2) CHECK (total_amount >= 0),
-    currency VARCHAR(3) DEFAULT 'USD' CHECK (currency IN ('USD', 'UZS')),
+    currency VARCHAR(3) DEFAULT 'UZS' CHECK (currency IN ('USD', 'UZS')),
     customer_note TEXT,
     admin_note TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
@@ -354,7 +354,7 @@ CREATE TRIGGER update_settings_updated_at BEFORE UPDATE ON settings
 INSERT INTO settings (key, value, description) VALUES
 ('site_name', 'HORECA Portal', 'Website adı'),
 ('site_slogan', 'Powered by Kalsan', 'Website sloganı'),
-('default_currency', 'USD', 'Varsayılan para birimi'),
+('default_currency', 'UZS', 'Varsayılan para birimi'),
 ('supported_currencies', '["USD", "UZS"]', 'Desteklenen para birimleri'),
 ('cart_expiry_days', '7', 'Sepet son kullanma süresi (gün)'),
 ('quote_expiry_days', '30', 'Teklif saklama süresi (gün)'),
@@ -426,7 +426,7 @@ INSERT INTO pricing (product_id, cost_price, currency, additional_costs, margin_
 SELECT 
     p.id,
     pr.cost_price,
-    'USD',
+    'UZS',
     pr.additional_costs,
     pr.margin,
     (pr.cost_price + pr.additional_costs) * (1 + pr.margin / 100)

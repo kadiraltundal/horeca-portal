@@ -14,7 +14,7 @@ CREATE TABLE orders (
     payment_status VARCHAR(20) DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid', 'partially_paid', 'paid', 'refunded')),
     total_amount DECIMAL(12,2) NOT NULL CHECK (total_amount >= 0),
     paid_amount DECIMAL(12,2) DEFAULT 0 CHECK (paid_amount >= 0),
-    currency VARCHAR(3) DEFAULT 'USD' CHECK (currency IN ('USD', 'UZS')),
+    currency VARCHAR(3) DEFAULT 'UZS' CHECK (currency IN ('USD', 'UZS')),
     customer_name VARCHAR(200) NOT NULL,
     customer_phone VARCHAR(20),
     customer_email VARCHAR(200),

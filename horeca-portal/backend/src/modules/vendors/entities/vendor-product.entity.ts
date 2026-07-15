@@ -9,6 +9,12 @@ import {
 import { Vendor } from './vendor.entity';
 import { Product } from '../../products/entities/product.entity';
 
+export enum VendorProductStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
 @Entity('vendor_products')
 export class VendorProduct {
   @PrimaryGeneratedColumn('uuid')
@@ -21,19 +27,28 @@ export class VendorProduct {
   productId: string;
 
   @Column({
-    name: 'custom_price',
+    name: 'vendor_price',
     type: 'decimal',
     precision: 12,
     scale: 2,
-    nullable: true,
   })
-  customPrice: number;
+  vendorPrice: number;
 
-  @Column({ type: 'integer', default: 0 })
-  stock: number;
+  @Column({ name: 'vendor_sku', type: 'varchar', length: 100, nullable: true })
+  vendorSku: string;
 
-  @Column({ type: 'boolean', default: true })
-  active: boolean;
+  @Column({ name: 'stock_quantity', type: 'integer', default: 0 })
+  stockQuantity: number;
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: VendorProductStatus.PENDING,
+  })
+  status: VendorProductStatus;
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

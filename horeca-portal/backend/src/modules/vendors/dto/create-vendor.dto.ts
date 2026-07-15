@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsNumber, IsEmail } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsNumber, IsEmail, IsBoolean } from 'class-validator';
 import { VendorType } from '../entities/vendor.entity';
 
 export class CreateVendorDto {
@@ -15,7 +15,7 @@ export class CreateVendorDto {
 
   @IsOptional()
   @IsNumber()
-  commission?: number;
+  commissionRate?: number;
 
   @IsOptional()
   @IsString()
@@ -31,5 +31,25 @@ export class CreateVendorDto {
 
   @IsOptional()
   @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  @IsString()
   logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  bannerUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  taxNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  bankAccount?: string;
 }

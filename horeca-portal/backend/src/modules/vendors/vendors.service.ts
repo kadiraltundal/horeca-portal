@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vendor, VendorStatus } from './entities/vendor.entity';
-import { VendorProduct } from './entities/vendor-product.entity';
+import { VendorProduct, VendorProductStatus } from './entities/vendor-product.entity';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 
 @Injectable()
@@ -17,8 +17,10 @@ export class VendorsService {
   ) {}
 
   async create(userId: string, createVendorDto: CreateVendorDto): Promise<Vendor> {
+    const slug = this.generateSlug(createVendorDto.name);
     const vendor = this.vendorRepository.create({
       userId,
+      slug,
       ...createVendorDto,
     });
 
@@ -56,7 +58,6 @@ export class VendorsService {
   async approve(id: string): Promise<Vendor> {
     const vendor = await this.findOne(id);
     vendor.status = VendorStatus.APPROVED;
-    vendor.approvedAt = new Date();
 
     this.logger.log(`Approving vendor ${id}`);
     return this.vendorRepository.save(vendor);
@@ -65,7 +66,6 @@ export class VendorsService {
   async reject(id: string, reason: string): Promise<Vendor> {
     const vendor = await this.findOne(id);
     vendor.status = VendorStatus.REJECTED;
-    vendor.suspendReason = reason;
 
     return this.vendorRepository.save(vendor);
   }
@@ -73,19 +73,43 @@ export class VendorsService {
   async suspend(id: string, reason: string): Promise<Vendor> {
     const vendor = await this.findOne(id);
     vendor.status = VendorStatus.SUSPENDED;
-    vendor.suspendedAt = new Date();
-    vendor.suspendReason = reason;
 
     return this.vendorRepository.save(vendor);
   }
 
-  async addProduct(vendorId: string, productId: string, customPrice?: number): Promise<VendorProduct> {
+  async addProduct(
+    vendorId: string,
+    productId: string,
+    vendorPrice: number,
+    vendorSku?: string,
+    stockQuantity?: number,
+  ): Promise<VendorProduct> {
     const vendorProduct = this.vendorProductRepository.create({
       vendorId,
       productId,
-      customPrice,
+      vendorPrice,
+      vendorSku,
+      stockQuantity,
+      status: VendorProductStatus.PENDING,
     });
 
+    return this.vendorProductRepository.save(vendorProduct);
+  }
+
+  async updateProduct(
+    vendorId: string,
+    productId: string,
+    updateData: Partial<Pick<VendorProduct, 'vendorPrice' | 'vendorSku' | 'stockQuantity' | 'status'>>,
+  ): Promise<VendorProduct> {
+    const vendorProduct = await this.vendorProductRepository.findOne({
+      where: { vendorId, productId },
+    });
+
+    if (!vendorProduct) {
+      throw new NotFoundException('Vendor product not found');
+    }
+
+    Object.assign(vendorProduct, updateData);
     return this.vendorProductRepository.save(vendorProduct);
   }
 
@@ -94,5 +118,13 @@ export class VendorsService {
       vendorId,
       productId,
     });
+  }
+
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      + '-' + Date.now().toString(36);
   }
 }

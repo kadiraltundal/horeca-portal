@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Quote } from '@/types';
+import { formatPrice } from '@/lib/utils';
 
 interface QuoteCardProps {
   quote: Quote;
@@ -82,7 +83,7 @@ export default function QuoteCard({ quote }: QuoteCardProps) {
           {quote.items?.length || 0} ta mahsulot
         </p>
         <p className="font-bold text-gray-900">
-          ${quote.totalAmount?.toFixed(2) || '0.00'}
+          {formatPrice(quote.totalAmount || 0)}
         </p>
       </div>
     </Link>

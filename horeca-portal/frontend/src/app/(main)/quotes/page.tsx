@@ -7,6 +7,7 @@ import { Quote } from '@/types';
 import Loading from '@/components/common/Loading';
 import EmptyState from '@/components/common/EmptyState';
 import Header from '@/components/common/Header';
+import { formatPrice } from '@/lib/utils';
 
 type FilterStatus = 'all' | 'pending' | 'processing' | 'completed' | 'rejected';
 
@@ -172,7 +173,7 @@ export default function QuotesPage() {
                     )}
                   </div>
                   <p className="font-bold text-blue-600">
-                    ${quote.totalAmount?.toFixed(2) || '0.00'}
+                    {formatPrice(quote.totalAmount || 0)}
                   </p>
                 </div>
               </Link>

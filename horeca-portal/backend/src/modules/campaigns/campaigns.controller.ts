@@ -6,16 +6,15 @@ import {
   Delete,
   Body,
   Param,
-  UseGuards,
 } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RequirePermissions } from '../../common/decorators/permission.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { Permission } from '../../common/types/permission.types';
 
 @Controller('campaigns')
 export class CampaignsController {
@@ -28,15 +27,15 @@ export class CampaignsController {
   }
 
   @Get('admin/all')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.CAMPAIGNS_READ)
   findAll() {
     return this.campaignsService.findAll();
   }
 
   @Get('admin/stats')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.REPORTS_READ)
   getStats() {
     return this.campaignsService.getStats();
   }
@@ -48,29 +47,29 @@ export class CampaignsController {
   }
 
   @Get(':id/products')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.CAMPAIGNS_READ)
   getCampaignProducts(@Param('id') id: string) {
     return this.campaignsService.getCampaignProducts(id);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.CAMPAIGNS_CREATE)
   create(@Body() createCampaignDto: CreateCampaignDto) {
     return this.campaignsService.create(createCampaignDto);
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.CAMPAIGNS_UPDATE)
   update(@Param('id') id: string, @Body() updateCampaignDto: UpdateCampaignDto) {
     return this.campaignsService.update(id, updateCampaignDto);
   }
 
   @Post(':id/products')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.CAMPAIGNS_UPDATE)
   addProduct(
     @Param('id') id: string,
     @Body() body: { productId: string; campaignPrice?: number },
@@ -79,15 +78,15 @@ export class CampaignsController {
   }
 
   @Delete(':id/products/:productId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.CAMPAIGNS_UPDATE)
   removeProduct(@Param('id') id: string, @Param('productId') productId: string) {
     return this.campaignsService.removeProduct(id, productId);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CAMPAIGNS_DELETE)
   remove(@Param('id') id: string) {
     return this.campaignsService.remove(id);
   }

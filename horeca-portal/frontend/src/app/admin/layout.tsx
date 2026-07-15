@@ -11,6 +11,10 @@ const adminNavItems = [
   { href: '/admin/products', label: 'Mahsulotlar', icon: '📦' },
   { href: '/admin/campaigns', label: 'Kampanyalar', icon: '🎉' },
   { href: '/admin/quotes', label: 'Teklifler', icon: '📋' },
+  { href: '/admin/orders', label: 'Siparisler', icon: '🛍️' },
+  { href: '/admin/payments', label: 'Odemeler', icon: '💳' },
+  { href: '/admin/vendors', label: 'Saticilar', icon: '🏪' },
+  { href: '/admin/import', label: 'Import', icon: '📥' },
 ];
 
 export default function AdminLayout({

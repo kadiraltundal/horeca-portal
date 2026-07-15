@@ -10,6 +10,9 @@ import {
 export enum UserRole {
   ADMIN = 'admin',
   CUSTOMER = 'customer',
+  VENDOR = 'vendor',
+  SUPPLIER = 'supplier',
+  MANAGER = 'manager',
 }
 
 export enum UserLanguage {

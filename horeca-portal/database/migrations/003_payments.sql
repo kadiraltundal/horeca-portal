@@ -14,7 +14,7 @@ CREATE TABLE payments (
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled')),
     method VARCHAR(20) NOT NULL CHECK (method IN ('credit_card', 'bank_transfer', 'cash', 'click', 'payme')),
     amount DECIMAL(12,2) NOT NULL CHECK (amount >= 0),
-    currency VARCHAR(3) DEFAULT 'USD' CHECK (currency IN ('USD', 'UZS')),
+    currency VARCHAR(3) DEFAULT 'UZS' CHECK (currency IN ('USD', 'UZS')),
     external_id VARCHAR(200),
     description TEXT,
     metadata TEXT,

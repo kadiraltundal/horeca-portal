@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useTelegram } from '@/hooks/useTelegram';
+import { setupApiInterceptor } from '@/lib/api-interceptor';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -16,6 +17,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    // Setup API interceptor for token refresh
+    setupApiInterceptor();
+
     // Try to load user from stored token first
     loadUser().then(() => {
       // Load cart immediately if user is authenticated

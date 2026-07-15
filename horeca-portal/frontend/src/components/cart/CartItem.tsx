@@ -2,6 +2,7 @@
 
 import { CartItem as CartItemType } from '@/types';
 import { useCartStore } from '@/stores/cartStore';
+import { formatPrice } from '@/lib/utils';
 
 interface CartItemProps {
   item: CartItemType;
@@ -56,9 +57,9 @@ export default function CartItem({ item }: CartItemProps) {
               </svg>
             </button>
           </div>
-          <p className="text-sm text-gray-500">${item.unitPrice.toFixed(2)} / dona</p>
+          <p className="text-sm text-gray-500">{formatPrice(item.unitPrice)} / dona</p>
           <p className="text-sm font-medium text-blue-600 mt-1">
-            ${item.totalPrice.toFixed(2)}
+            {formatPrice(item.totalPrice)}
           </p>
         </div>
       </div>

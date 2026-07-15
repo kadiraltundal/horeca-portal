@@ -13,18 +13,17 @@ import { Response } from 'express';
 import * as csv from 'csv-parse/sync';
 import { ImportService, ImportProductRow, ImportResult } from './import.service';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { RequirePermissions } from '../../common/decorators/permission.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { Permission } from '../../common/types/permission.types';
 
 @Controller('import')
 export class ImportController {
   constructor(private readonly importService: ImportService) {}
 
-  /**
-   * Upload and import products from CSV file
-   * POST /api/import/products
-   */
   @Post('products')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.IMPORT_CREATE)
   @UseInterceptors(FileInterceptor('file'))
   async importFromCsv(
     @UploadedFile() file: Express.Multer.File,
@@ -40,7 +39,6 @@ export class ImportController {
       };
     }
 
-    // Validate file type
     const validMimeTypes = [
       'text/csv',
       'application/vnd.ms-excel',
@@ -60,15 +58,13 @@ export class ImportController {
     }
 
     try {
-      // Parse CSV
       const records = csv.parse(file.buffer.toString(), {
         columns: true,
         skip_empty_lines: true,
         trim: true,
-        bom: true, // Handle BOM for Excel CSVs
+        bom: true,
       });
 
-      // Convert to ImportProductRow format
       const rows: ImportProductRow[] = records.map((record: any) => ({
         sku: record.sku || record.SKU,
         name_uz: record.name_uz || record.name_UZ,
@@ -86,7 +82,6 @@ export class ImportController {
         additional_costs: record.additional_costs ? Number(record.additional_costs) : undefined,
         margin_percentage: Number(record.margin_percentage),
         currency: record.currency,
-        // Parse tier columns
         tier1_min: record.tier1_min ? Number(record.tier1_min) : undefined,
         tier1_max: record.tier1_max ? Number(record.tier1_max) : undefined,
         tier1_price: record.tier1_price ? Number(record.tier1_price) : undefined,
@@ -114,12 +109,9 @@ export class ImportController {
     }
   }
 
-  /**
-   * Import products from JSON body
-   * POST /api/import/products/json
-   */
   @Post('products/json')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @RequirePermissions(Permission.IMPORT_CREATE)
   async importFromJson(
     @Body() body: { products: ImportProductRow[] },
   ): Promise<ImportResult> {
@@ -137,11 +129,8 @@ export class ImportController {
     return await this.importService.importProducts(body.products);
   }
 
-  /**
-   * Download CSV template for product import
-   * GET /api/import/template
-   */
   @Get('template')
+  @RequirePermissions(Permission.IMPORT_READ)
   getTemplate(@Res() res: Response) {
     const template = this.importService.getImportTemplate();
 

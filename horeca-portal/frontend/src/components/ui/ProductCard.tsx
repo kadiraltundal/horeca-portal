@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Product } from '@/types';
 import { useCartStore } from '@/stores/cartStore';
+import { formatPrice } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
@@ -51,7 +52,7 @@ export default function ProductCard({ product, layout = 'list' }: ProductCardPro
           {product.brand && (
             <p className="text-xs text-gray-500 mb-1">{product.brand.name}</p>
           )}
-          <p className="text-blue-500 font-bold">${price.toFixed(2)}</p>
+          <p className="text-blue-500 font-bold">{formatPrice(price)}</p>
         </div>
       </Link>
     );
@@ -87,7 +88,7 @@ export default function ProductCard({ product, layout = 'list' }: ProductCardPro
             <p className="text-xs text-gray-500">{product.brand.name}</p>
           )}
           <div className="flex items-center justify-between mt-2">
-            <p className="text-blue-500 font-bold">${price.toFixed(2)}</p>
+            <p className="text-blue-500 font-bold">{formatPrice(price)}</p>
             <button
               onClick={handleAddToCart}
               className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 active:bg-blue-700"
