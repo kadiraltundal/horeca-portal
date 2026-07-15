@@ -3,7 +3,7 @@ WORKDIR /app
 COPY horeca-portal/backend/package*.json ./
 RUN npm install --legacy-peer-deps
 COPY horeca-portal/backend/ ./
-RUN npm run build
+RUN rm -f .env .env.* && npm run build
 
 FROM node:20-alpine
 WORKDIR /app
