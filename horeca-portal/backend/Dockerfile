@@ -1,8 +1,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY horeca-portal/backend/package*.json ./
+COPY package*.json ./
 RUN npm install --legacy-peer-deps
-COPY horeca-portal/backend/ ./
+COPY . ./
 RUN npm run build
 
 FROM node:20-alpine
