@@ -71,41 +71,41 @@ import { RecommendationsModule } from './modules/recommendations/recommendations
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DB_HOST', 'localhost'),
-        port: configService.get<number>('DB_PORT', 5432),
-        username: configService.get('DB_USERNAME', 'horeca_admin'),
-        password: configService.get('DB_PASSWORD', 'horeca_secret_2024'),
-        database: configService.get('DB_DATABASE', 'horeca_portal'),
-        ssl: configService.get('DB_HOST', 'localhost') !== 'localhost' ? { rejectUnauthorized: false } : false,
-        entities: [
-          User,
-          SearchHistory,
-          Product,
-          ProductImage,
-          ProductAttribute,
-          Category,
-          Brand,
-          Pricing,
-          PricingTier,
-          Campaign,
-          CampaignProduct,
-          Favorite,
-          QuoteCart,
-          Quote,
-          QuoteItem,
-          Notification,
-          Setting,
-          Payment,
-          Order,
-          OrderItem,
-          Vendor,
-          VendorProduct,
-        ],
-        synchronize: false, // Use migrations in production
-        logging: configService.get('DB_LOGGING', 'false') === 'true',
-      }),
+      useFactory: (configService: ConfigService): any => {
+        const databaseUrl = configService.get('DATABASE_URL');
+        if (databaseUrl) {
+          return {
+            type: 'postgres',
+            url: databaseUrl,
+            ssl: { rejectUnauthorized: false },
+            entities: [
+              User, SearchHistory, Product, ProductImage, ProductAttribute,
+              Category, Brand, Pricing, PricingTier, Campaign, CampaignProduct,
+              Favorite, QuoteCart, Quote, QuoteItem, Notification, Setting,
+              Payment, Order, OrderItem, Vendor, VendorProduct,
+            ],
+            synchronize: false,
+            logging: configService.get('DB_LOGGING', 'false') === 'true',
+          };
+        }
+        return {
+          type: 'postgres',
+          host: configService.get('DB_HOST', 'localhost'),
+          port: configService.get<number>('DB_PORT', 5432),
+          username: configService.get('DB_USERNAME', 'horeca_admin'),
+          password: configService.get('DB_PASSWORD', 'horeca_secret_2024'),
+          database: configService.get('DB_DATABASE', 'horeca_portal'),
+          ssl: configService.get('DB_HOST', 'localhost') !== 'localhost' ? { rejectUnauthorized: false } : false,
+          entities: [
+            User, SearchHistory, Product, ProductImage, ProductAttribute,
+            Category, Brand, Pricing, PricingTier, Campaign, CampaignProduct,
+            Favorite, QuoteCart, Quote, QuoteItem, Notification, Setting,
+            Payment, Order, OrderItem, Vendor, VendorProduct,
+          ],
+          synchronize: false,
+          logging: configService.get('DB_LOGGING', 'false') === 'true',
+        };
+      },
     }),
 
     // Rate Limiting
